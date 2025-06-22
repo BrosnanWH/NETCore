@@ -82,31 +82,67 @@ namespace TiendaOnline.Controllers
         }
         //Vamos a agregar la accion para Editar producto cuando se presiona el boton Editar
         //Se va a requerir el Id del producto, el Id se agregara a la UR
-        public ActionResult Edit(int id)
+
+        [HttpPost]
+
+        public IActionResult Edit(int id)
         {
-            //Primero se busca el producto a través de su Id
-            //Si no se encuentra, el resultado devuelto es null
             var producto = context.Productos.Find(id);
             if (producto == null)
-                //Si no se encuentra, redireccionamos al usuario a la lista de productos
                 return RedirectToAction("Index", "ControladorProductos");
 
-            //Si hallamos el producto, vamos a crear un objeto ProductoDto con los datos de producto
-            var productoDto = new ProductoDto() //ProductoDto productoDto = new ProductoDte()
+            var productoDto = new ProductoDto
             {
                 Nombre = producto.Nombre,
                 Marca = producto.Marca,
                 Categoria = producto.Categoria,
                 Precio = producto.Precio,
-                Descripcion = producto.Descripcion,
+                Descripcion = producto.Descripcion
+                // ArchivoImagen no se asigna en GET
             };
-            //Debido a ProductoDto no contiene el Id, por lo que vamos a agregar el Id a un diccionario
-            //Llamado ViewData() para poder mostrarlo en la vista Edit
+
             ViewData["Id"] = producto.Id;
             ViewData["NombreArchivoImagen"] = producto.NombreArchivoImagen;
             ViewData["CreadoEn"] = producto.CreadoEn.ToString("dd/MM/yyyy");
-            //Ahora debemos proveer la vista para este objeto
+
             return View(productoDto);
+        }
+
+        [HttpPost]
+        [ActionName("Edit")]
+        public IActionResult EditPost(int id, ProductoDto productoDto)
+
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewData["Id"] = id;
+                return View(productoDto);
+            }
+
+            var producto = context.Productos.Find(id);
+            if (producto == null)
+                return RedirectToAction("Index", "ControladorProductos");
+
+            producto.Nombre = productoDto.Nombre;
+            producto.Marca = productoDto.Marca;
+            producto.Categoria = productoDto.Categoria;
+            producto.Precio = productoDto.Precio;
+            producto.Descripcion = productoDto.Descripcion;
+
+            if (productoDto.ArchivoImagen != null)
+            {
+                string nuevoNombreArchivo = DateTime.Now.ToString("ddMMyyyyHHmmssfff") +
+                                            Path.GetExtension(productoDto.ArchivoImagen.FileName);
+                string rutaCompletaImagen = Path.Combine(environment.WebRootPath, "productos", nuevoNombreArchivo);
+                using (var flujoBytes = System.IO.File.Create(rutaCompletaImagen))
+                {
+                    productoDto.ArchivoImagen.CopyTo(flujoBytes);
+                }
+                producto.NombreArchivoImagen = nuevoNombreArchivo;
+            }
+
+            context.SaveChanges();
+            return RedirectToAction("Index", "ControladorProductos");
         }
     }
 }

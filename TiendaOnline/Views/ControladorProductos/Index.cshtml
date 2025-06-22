@@ -36,11 +36,11 @@
                 <td>@producto.Marca</td>
                 <td>@producto.Categoria</td>
                 <td>@(producto.Precio)U$</td>
-                <td><img src="-/productos/@producto.NombreArchivoImagen" width="100"></td>
+                <td><img src="~/productos/@producto.NombreArchivoImagen" width="100"></td>
                 <td>@producto.CreadoEn.ToString("dd/MM/yyyy")</td>
                 <td style="white-space: nowrap;">
-                    <a elass="btn btn-primary btn-sm" asp-comtroller="ControladorPreductos" asp-action="Edit" asp-rowte-id="@producto. Id">Editar</a>
-                    <a class="btn btn-danger btn-sm" asp-contreller="ControladorProductos" asp-action="Delete" asp-reute-id="@producto. Id">Eliminar</a>
+                    <a class="btn btn-primary btn-sm" asp-controller="ControladorProductos" asp-action="Edit" asp-route-id="@producto.Id">Editar</a>
+                    <a class="btn btn-danger btn-sm" asp-controller="ControladorProductos" asp-action="Delete" asp-route-id="@producto.Id">Eliminar</a>
                 </td>
             </tr>
         }
